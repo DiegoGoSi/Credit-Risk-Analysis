@@ -1,103 +1,68 @@
-import os
-import boto3
+import numpy as np
 import pandas as pd
-from src import config
+
 from typing import Tuple
-from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, OrdinalEncoder
 
-s3 = boto3.resource('s3', aws_access_key_id=config.access_key, aws_secret_access_key=config.secret_key)
+def preprocess_data(
+    train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
 
-def get_dataset() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Download from S3 all the needed datasets for the project.
+    #Copy of dataframes
+    working_train_df = train_df.copy()
+    working_val_df = val_df.copy()
+    working_test_df = test_df.copy()
 
-    Returns:
-        training_df : pd.DataFrame
-            Training dataset
+    #Binary and Multi-Class Columns
+    binary_cols=[]
+    multi_cols=[]
+    categorical_cols = working_train_df.select_dtypes(include='object').columns.tolist()
+    for cat_col in categorical_cols:
+            unique_values = working_train_df[cat_col].nunique()
+            if unique_values==1 or unique_values>=20:
+                working_train_df=working_train_df.drop(cat_col,axis=1)
+                working_val_df=working_val_df.drop(cat_col,axis=1)
+                working_test_df=working_test_df.drop(cat_col,axis=1)
+            if unique_values==2:
+                binary_cols.append(cat_col)
+            if unique_values>=3 and unique_values<20:
+                multi_cols.append(cat_col)
 
-        variable_list : pd.DataFrame
-            Extra dataframe with detailed description about dataset features
-    """
-    if not os.path.exists("./dataset"):
-        os.makedirs("./dataset")
+    #OrdinalEncoder for Binary Columns
+    input_df=[working_train_df,working_val_df,working_test_df]
+    ord_encoder = OrdinalEncoder()
+    for col in binary_cols:
+        for df in input_df:
+            df[col] = ord_encoder.fit_transform(df[[col]].fillna('Unknown'))
 
-    for obj in s3.Bucket(config.bucket_name).objects.filter(Prefix=config.key):
-        if not obj.key.endswith('/'):
-            s3.meta.client.download_file(config.bucket_name, 
-                                        obj.key, 
-                                        f'dataset/{obj.key.split("/")[-1]}')
-    
-    variable_list = pd.read_excel("dataset/PAKDD2010_VariablesList.XLS")
-    variable_list.loc[43,'Var_Title']='MATE_EDUCATION_LEVEL'
-    columns_names = variable_list['Var_Title'].tolist()
-    training_df = pd.read_csv('dataset/PAKDD2010_Modeling_Data.txt', 
-                              encoding='latin-1',
-                              delimiter="\t",
-                              header=None,
-                              names=columns_names)
-    
-    train_df, test_df = train_test_split(training_df,
-                                         test_size=0.2,
-                                         random_state=42,
-                                         shuffle=True)
-    
-    return train_df, test_df, variable_list
+    #OneHotEncoder for Multi-Class Columns
+    oh_encoder = OneHotEncoder(handle_unknown="ignore")
+    oh_encoder.fit(working_train_df[multi_cols])
+    train_enc_cols = oh_encoder.transform(working_train_df[multi_cols]).toarray()
+    val_enc_cols = oh_encoder.transform(working_val_df[multi_cols]).toarray()
+    test_enc_cols = oh_encoder.transform(working_test_df[multi_cols]).toarray()
 
-def get_features(train_df: pd.DataFrame, test_df: pd.DataFrame
-) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
-    """
-    Separates our train and test datasets columns between Features
-    (the input to the model) and Targets (what the model has to predict with the
-    given features).
+    working_train_df.drop(columns=multi_cols, axis=1, inplace=True)
+    working_val_df.drop(columns=multi_cols, axis=1, inplace=True)
+    working_test_df.drop(columns=multi_cols, axis=1, inplace=True)
 
-    Arguments:
-        train_df : pd.DataFrame
-            Training dataset
-        test_df : pd.DataFrame
-            Testing dataset
+    working_train_df = np.concatenate([working_train_df.to_numpy(), train_enc_cols],axis=1)
+    working_val_df = np.concatenate([working_val_df.to_numpy(), val_enc_cols],axis=1)
+    working_test_df = np.concatenate([working_test_df.to_numpy(), test_enc_cols],axis=1)
 
-    Returns:
-        X_train : pd.DataFrame
-            Training features
-        y_train : pd.Series
-            Training target
-        X_test : pd.DataFrame
-            Test features
-        y_test : pd.Series
-            Test target
-    """
-    X_train = train_df.drop('TARGET_LABEL_BAD=1', axis=1)
-    y_train = train_df['TARGET_LABEL_BAD=1']
-    X_test = test_df.drop('TARGET_LABEL_BAD=1', axis=1)
-    y_test = test_df['TARGET_LABEL_BAD=1']
+    #Impute Data for Columns with Missing Data
+    imputer=SimpleImputer(missing_values=np.nan,strategy="median")
+    imputer.fit(working_train_df)
+    train=imputer.transform(working_train_df)
+    val=imputer.transform(working_val_df)
+    test=imputer.transform(working_test_df)
 
-    return X_train, y_train, X_test, y_test
+    #Scale Data
+    scaler=MinMaxScaler(feature_range=(0,1))
+    scaler.fit(train)
+    train=scaler.transform(train)
+    val=scaler.transform(val)
+    test=scaler.transform(test)
 
-def get_train_val(X_train: pd.DataFrame, y_train: pd.DataFrame
-) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
-    """
-    Split training dataset in two new sets used for train and validation.
-
-    Arguments:
-        X_train : pd.DataFrame
-            Original training features
-        y_train: pd.Series
-            Original training labels/target
-
-    Returns:
-        X_train : pd.DataFrame
-            Training features
-        X_val : pd.DataFrame
-            Validation features
-        y_train : pd.Series
-            Training target
-        y_val : pd.Series
-            Validation target
-    """ 
-    X_train, X_val, y_train, y_val = train_test_split(X_train,
-                                                      y_train,
-                                                      test_size=0.2,
-                                                      random_state=42,
-                                                      shuffle=True)
-     
-    return X_train, X_val, y_train, y_val
+    return working_train_df,working_val_df,working_test_df
