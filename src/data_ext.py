@@ -30,16 +30,20 @@ def get_dataset() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     variable_list = pd.read_excel("dataset/PAKDD2010_VariablesList.XLS")
     variable_list.loc[43,'Var_Title']='MATE_EDUCATION_LEVEL'
     columns_names = variable_list['Var_Title'].tolist()
-    training_df = pd.read_csv('dataset/PAKDD2010_Modeling_Data.txt', 
+
+    #Modeling Data
+    train_df = pd.read_csv('dataset/PAKDD2010_Modeling_Data.txt', 
                               encoding='latin-1',
                               delimiter="\t",
                               header=None,
                               names=columns_names)
     
-    train_df, test_df = train_test_split(training_df,
-                                         test_size=0.2,
-                                         random_state=42,
-                                         shuffle=True)
+    #Predicition data
+    test_df = pd.read_csv('dataset/PAKDD2010_Prediction_Data.txt', 
+                              encoding='latin-1',
+                              delimiter="\t",
+                              header=None,
+                              names=columns_names)
     
     return train_df, test_df, variable_list
 
@@ -53,18 +57,12 @@ def get_features(train_df: pd.DataFrame, test_df: pd.DataFrame
     Arguments:
         train_df : pd.DataFrame
             Training dataset
-        test_df : pd.DataFrame
-            Testing dataset
 
     Returns:
         X_train : pd.DataFrame
             Training features
         y_train : pd.Series
             Training target
-        X_test : pd.DataFrame
-            Test features
-        y_test : pd.Series
-            Test target
     """
     X_train = train_df.drop('TARGET_LABEL_BAD=1', axis=1)
     y_train = train_df['TARGET_LABEL_BAD=1']
