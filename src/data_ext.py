@@ -27,6 +27,7 @@ def get_dataset() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
                                         obj.key, 
                                         f'dataset/{obj.key.split("/")[-1]}')
     
+    #Variable List
     variable_list = pd.read_excel("dataset/PAKDD2010_VariablesList.XLS")
     variable_list.loc[43,'Var_Title']='MATE_EDUCATION_LEVEL'
     columns_names = variable_list['Var_Title'].tolist()
@@ -35,6 +36,7 @@ def get_dataset() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     train_df = pd.read_csv('dataset/PAKDD2010_Modeling_Data.txt', 
                               encoding='latin-1',
                               delimiter="\t",
+                              low_memory=False,
                               header=None,
                               names=columns_names)
     
@@ -57,12 +59,17 @@ def get_features(train_df: pd.DataFrame, test_df: pd.DataFrame
     Arguments:
         train_df : pd.DataFrame
             Training dataset
-
+        test_df : pd.DataFrame
+            Testing dataset
     Returns:
         X_train : pd.DataFrame
             Training features
         y_train : pd.Series
             Training target
+        X_test : pd.DataFrame
+            Testing features
+        y_test : pd.Series
+            Testing target
     """
     X_train = train_df.drop('TARGET_LABEL_BAD=1', axis=1)
     y_train = train_df['TARGET_LABEL_BAD=1']
