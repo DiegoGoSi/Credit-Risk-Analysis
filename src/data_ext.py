@@ -1,53 +1,53 @@
 import os
-import boto3
+# import boto3
 import pandas as pd
 from src import config
 from typing import Tuple
 from sklearn.model_selection import train_test_split
 
-s3 = boto3.resource('s3', aws_access_key_id=config.access_key, aws_secret_access_key=config.secret_key)
+# s3 = boto3.resource('s3', aws_access_key_id=config.access_key, aws_secret_access_key=config.secret_key)
 
-def get_dataset() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Download from S3 all the needed datasets for the project.
+# def get_dataset() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+#     """
+#     Download from S3 all the needed datasets for the project.
 
-    Returns:
-        training_df : pd.DataFrame
-            Training dataset
+#     Returns:
+#         training_df : pd.DataFrame
+#             Training dataset
 
-        variable_list : pd.DataFrame
-            Extra dataframe with detailed description about dataset features
-    """
-    if not os.path.exists("./dataset"):
-        os.makedirs("./dataset")
+#         variable_list : pd.DataFrame
+#             Extra dataframe with detailed description about dataset features
+#     """
+#     if not os.path.exists("./dataset"):
+#         os.makedirs("./dataset")
 
-    for obj in s3.Bucket(config.bucket_name).objects.filter(Prefix=config.key):
-        if not obj.key.endswith('/'):
-            s3.meta.client.download_file(config.bucket_name, 
-                                        obj.key, 
-                                        f'dataset/{obj.key.split("/")[-1]}')
+#     for obj in s3.Bucket(config.bucket_name).objects.filter(Prefix=config.key):
+#         if not obj.key.endswith('/'):
+#             s3.meta.client.download_file(config.bucket_name, 
+#                                         obj.key, 
+#                                         f'dataset/{obj.key.split("/")[-1]}')
     
-    #Variable List
-    variable_list = pd.read_excel("dataset/PAKDD2010_VariablesList.XLS")
-    variable_list.loc[43,'Var_Title']='MATE_EDUCATION_LEVEL'
-    columns_names = variable_list['Var_Title'].tolist()
+#     #Variable List
+#     variable_list = pd.read_excel("dataset/PAKDD2010_VariablesList.XLS")
+#     variable_list.loc[43,'Var_Title']='MATE_EDUCATION_LEVEL'
+#     columns_names = variable_list['Var_Title'].tolist()
 
-    #Modeling Data
-    train_df = pd.read_csv('dataset/PAKDD2010_Modeling_Data.txt', 
-                              encoding='latin-1',
-                              delimiter="\t",
-                              low_memory=False,
-                              header=None,
-                              names=columns_names)
+#     #Modeling Data
+#     train_df = pd.read_csv('dataset/PAKDD2010_Modeling_Data.txt', 
+#                               encoding='latin-1',
+#                               delimiter="\t",
+#                               low_memory=False,
+#                               header=None,
+#                               names=columns_names)
     
-    #Predicition data
-    test_df = pd.read_csv('dataset/PAKDD2010_Prediction_Data.txt', 
-                              encoding='latin-1',
-                              delimiter="\t",
-                              header=None,
-                              names=columns_names)
+#     #Predicition data
+#     test_df = pd.read_csv('dataset/PAKDD2010_Prediction_Data.txt', 
+#                               encoding='latin-1',
+#                               delimiter="\t",
+#                               header=None,
+#                               names=columns_names)
     
-    return train_df, test_df, variable_list
+#     return train_df, test_df, variable_list
 
 def get_features(train_df: pd.DataFrame, test_df: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
