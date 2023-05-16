@@ -12,8 +12,11 @@ def get_dataset() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     Download from S3 all the needed datasets for the project.
 
     Returns:
-        training_df : pd.DataFrame
+        train : pd.DataFrame
             Training dataset
+        
+        test_df : pd.DataFrame
+            Testing dataset
 
         variable_list : pd.DataFrame
             Extra dataframe with detailed description about dataset features
