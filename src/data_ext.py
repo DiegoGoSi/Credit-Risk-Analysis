@@ -11,10 +11,6 @@ from sklearn.model_selection import train_test_split
 #     """
 #     Download from S3 all the needed datasets for the project.
 
-#     Returns:
-#         training_df : pd.DataFrame
-#             Training dataset
-
 #         variable_list : pd.DataFrame
 #             Extra dataframe with detailed description about dataset features
 #     """
