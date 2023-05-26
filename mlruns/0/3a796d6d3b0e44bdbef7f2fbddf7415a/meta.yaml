@@ -1,0 +1,15 @@
+artifact_uri: file:///c:/Users/diego/OneDrive/Documentos/Final_Project/mlruns/0/3a796d6d3b0e44bdbef7f2fbddf7415a/artifacts
+end_time: 1684276962082
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 3a796d6d3b0e44bdbef7f2fbddf7415a
+run_name: RandomForestClassifier
+run_uuid: 3a796d6d3b0e44bdbef7f2fbddf7415a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1684276953348
+status: 3
+tags: []
+user_id: diego

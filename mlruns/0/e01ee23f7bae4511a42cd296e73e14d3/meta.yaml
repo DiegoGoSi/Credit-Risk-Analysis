@@ -1,0 +1,15 @@
+artifact_uri: file:///c:/Users/diego/OneDrive/Documentos/Final_Project/mlruns/0/e01ee23f7bae4511a42cd296e73e14d3/artifacts
+end_time: 1685138653220
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: e01ee23f7bae4511a42cd296e73e14d3
+run_name: Model Neural Network
+run_uuid: e01ee23f7bae4511a42cd296e73e14d3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1685138652923
+status: 4
+tags: []
+user_id: diego

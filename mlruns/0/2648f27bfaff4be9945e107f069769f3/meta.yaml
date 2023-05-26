@@ -1,0 +1,15 @@
+artifact_uri: file:///c:/Users/diego/OneDrive/Documentos/Final_Project/mlruns/0/2648f27bfaff4be9945e107f069769f3/artifacts
+end_time: 1684277493647
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2648f27bfaff4be9945e107f069769f3
+run_name: LightGBM
+run_uuid: 2648f27bfaff4be9945e107f069769f3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1684277487142
+status: 3
+tags: []
+user_id: diego
