@@ -1,7 +1,8 @@
 from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import Dense, Conv2D
+from tensorflow.python.keras.layers import Dense
+from sklearn import svm
 
-def model_predict(input_shape):
+def deepl_model(input_shape):
     
     # Define the model
     model_seq = Sequential()
