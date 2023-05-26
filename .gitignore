@@ -2,5 +2,3 @@ src/config.py
 src/__pycache__
 dataset/raw'
 model/__pycache__
-mlruns/
-Final_Project_cristian.ipynb
