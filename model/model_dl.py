@@ -7,7 +7,7 @@ def model_predict(input_shape):
     model_seq = Sequential()
     
     #Layer 0
-    model_seq.add(Dense(64, activation='relu',input_shape =(43,)))
+    model_seq.add(Dense(64, activation='relu',input_shape =(38,)))
 
     #Layer 1
     model_seq.add(Dense(128, activation='tanh'))
