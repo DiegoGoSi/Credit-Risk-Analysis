@@ -11,7 +11,7 @@ def deepl_model(input_shape):
     model_seq.add(Dense(64, activation='relu',input_shape =(38,)))
 
     #Layer 1
-    model_seq.add(Dense(128, activation='tanh'))
+    model_seq.add(Dense(128, activation='relu'))
 
     #Layer 2
     model_seq.add(Dense(1, activation='sigmoid'))
