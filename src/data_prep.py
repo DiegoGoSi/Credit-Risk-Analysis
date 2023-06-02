@@ -14,6 +14,19 @@ def preprocess_data(
     working_val_df = val_df.copy()
     working_test_df = test_df.copy()
 
+    #Remove and modify unnecesary columns
+    cols_to_drop=['ID_CLIENT',
+                        'MATE_EDUCATION_LEVEL',
+                        'MATE_PROFESSION_CODE',
+                        'CLERK_TYPE',
+                        'FLAG_MOBILE_PHONE',
+                        'FLAG_ACSP_RECORD']
+    working_train_df['SEX'] = working_train_df['SEX'].replace(' ', 'F')
+    working_train_df['APPLICATION_SUBMISSION_TYPE'] = working_train_df['APPLICATION_SUBMISSION_TYPE'].replace('0', 'Web')
+    working_train_df=working_train_df.drop(cols_to_drop,axis=1)
+    working_val_df=working_val_df.drop(cols_to_drop,axis=1)
+    working_test_df=working_test_df.drop(cols_to_drop,axis=1)
+
     #Binary and Multi-Class Columns
     binary_cols=[]
     multi_cols=[]
